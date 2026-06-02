@@ -1,0 +1,20 @@
+[Unit]
+Description=Linux Fleet Telemetry Prometheus Exporter
+After=telemetry-agent.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/exporter.py
+Restart=always
+RestartSec=3
+
+# Runs under unprivileged user for safety as eBPF permissions are not needed to consume socket
+User=nobody
+Group=nogroup
+
+# Direct logging outputs
+StandardOutput=append:/var/log/telemetry-exporter.log
+StandardError=append:/var/log/telemetry-exporter.log
+
+[Install]
+WantedBy=multi-user.target

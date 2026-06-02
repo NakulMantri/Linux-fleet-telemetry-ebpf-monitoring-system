@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  telemetry-agent:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.agent
+    container_name: telemetry-agent
+    volumes:
+      - shared-socket:/tmp
+      # For Linux hosts running production eBPF kernel tracing, uncomment below:
+      # - /sys/kernel/debug:/sys/kernel/debug
+      # - /lib/modules:/lib/modules:ro
+      # - /usr/src:/usr/src:ro
+    # Defaults to high-fidelity simulation mode for instant testability on macOS and VMs
+    command: ["--simulate", "--socket", "/tmp/telemetry.sock"]
+    # For real eBPF mode on Linux hosts, uncomment below:
+    # privileged: true
+    restart: unless-stopped
+
+  telemetry-exporter:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.exporter
+    container_name: telemetry-exporter
+    ports:
+      - "8000:8000"
+    volumes:
+      - shared-socket:/tmp
+    depends_on:
+      - telemetry-agent
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - telemetry-exporter
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ../deploy/grafana-provisioning-datasource.yml:/etc/grafana/provisioning/datasources/prometheus.yaml:ro
+      - ../deploy/grafana-provisioning-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
+      - ../deploy/grafana-dashboard.json:/var/lib/grafana/dashboards/grafana-dashboard.json:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  shared-socket:

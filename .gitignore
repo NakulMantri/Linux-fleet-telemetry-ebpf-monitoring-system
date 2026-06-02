@@ -1,0 +1,31 @@
+# Compiled binaries
+telemetry-agent
+src/*.o
+src/*.skel.h
+src/*.bpf.o
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+pipeline/venv/
+pipeline/.venv/
+*.egg-info/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+/var/log/
+
+# Docker volumes
+docker/volumes/

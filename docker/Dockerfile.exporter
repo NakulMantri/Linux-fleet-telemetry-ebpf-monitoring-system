@@ -1,0 +1,19 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Copy requirements and install python dependencies
+COPY pipeline/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy exporter source file
+COPY pipeline/exporter.py ./
+
+# Expose Unix socket volume path
+VOLUME /tmp
+
+# Expose Prometheus exporter port
+EXPOSE 8000
+
+# Start custom exporter
+ENTRYPOINT ["python", "exporter.py"]

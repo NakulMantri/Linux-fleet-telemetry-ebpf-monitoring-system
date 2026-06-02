@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 5s       # High-frequency scraping for real-time dashboards
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'ebpf-telemetry'
+    static_configs:
+      # Targets will point to host when run natively, or the docker network service in container compose
+      - targets: ['telemetry-exporter:8000']

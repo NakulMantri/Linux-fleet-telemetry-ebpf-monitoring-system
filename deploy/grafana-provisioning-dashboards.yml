@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'ebpf-telemetry-dashboards'
+    orgId: 1
+    folder: 'eBPF Telemetry'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
